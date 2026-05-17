@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>蘑菇生成監控系統</title>
+
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -24,6 +25,7 @@
         font-size: 24px;
     }
 
+    /* 🖥️ 預設：電腦、橫評平板的大螢幕排版（左右分欄） */
     .main-workspace {
         display: grid;
         grid-template-columns: 1fr 2px 1fr;
@@ -58,12 +60,14 @@
         width: 100%;
     }
 
+    /* 🖥️ 預設中央分隔線（垂直淺灰線） */
     .center-line {
         background-color: #d2d4d9;
         align-self: stretch;
         margin: 10px 0;
     }
 
+    /* 計時器卡片基礎樣式 */
     .timer-box {
         text-align: center;
         background-color: white;
@@ -77,7 +81,7 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: center; /* 確保卡片內部容器也水平置中 */
+        align-items: center;
     }
     .timer-box:hover {
         transform: scale(1.02);
@@ -94,18 +98,18 @@
         width: 100%;
     }
 
-    /* 🛠️ 優化後的顯示時間樣式：強制絕對置中並鎖定等寬 */
     .time-display {
         font-size: 44px;
         font-weight: bold;
         color: #333;
-        font-family: 'Courier New', Courier, monospace; /* 改用標準等寬字型 */
+        font-family: 'Courier New', Courier, monospace;
         line-height: 1.2;
         text-align: center;
-        width: 100%;          /* 撐滿卡片寬度 */
-        letter-spacing: -1px; /* 稍微縮緊字距讓8碼長度更和諧 */
+        width: 100%;
+        letter-spacing: -1px;
     }
 
+    /* 底部的 "+" 與 "⚙️" 按鈕結構（強制置中） */
     .add-btn, #setupBtn {
         position: fixed; bottom: 30px; width: 60px; height: 60px;
         border: none; border-radius: 50%; cursor: pointer;
@@ -113,6 +117,7 @@
         line-height: 1; z-index: 10;
     }
 
+    /* 彈窗樣式 */
     dialog {
         border: none;
         border-radius: 8px;
@@ -134,61 +139,97 @@
     }
     .dialog-title-clickable {
         font-size: 20px;
-            font-weight: bold;
-            color: #333;
-            cursor: pointer;
-            padding: 4px 10px;
-            border-radius: 4px;
-            border: 1px dashed transparent;
-        }
-        .dialog-title-clickable:hover {
-            background-color: #f0f2f5;
-            border-color: #007bff;
-        }
-        .dialog-title-input {
-            font-size: 18px;
-            font-weight: bold;
-            padding: 4px 8px;
-            text-align: center;
-            border: 1px solid #007bff;
-            border-radius: 4px;
-            outline: none;
-            width: 180px;
+        font-weight: bold;
+        color: #333;
+        cursor: pointer;
+        padding: 4px 10px;
+        border-radius: 4px;
+        border: 1px dashed transparent;
+    }
+    .dialog-title-clickable:hover {
+        background-color: #f0f2f5;
+        border-color: #007bff;
+    }
+    .dialog-title-input {
+        font-size: 18px;
+        font-weight: bold;
+        padding: 4px 8px;
+        text-align: center;
+        border: 1px solid #007bff;
+        border-radius: 4px;
+        outline: none;
+        width: 180px;
+    }
+
+    .quick-input {
+        width: 200px;
+        padding: 10px;
+        font-size: 24px;
+        text-align: center;
+        letter-spacing: 2px;
+        border: 2px solid #007bff;
+        border-radius: 6px;
+        margin: 15px 0;
+        font-family: monospace;
+    }
+    .hint-text {
+        font-size: 14px;
+        color: #888;
+        margin-bottom: 15px;
+    }
+    .dialog-buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        margin-top: 10px;
+    }
+    .dialog-buttons button {
+        padding: 10px 18px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    .btn-confirm { background-color: #007bff; color: white; }
+    .btn-delete { background-color: #dc3545; color: white; }
+
+
+    /* ================= 📱 核心改動：手機網頁與平板直向的專屬樣式 ================= */
+    @media (max-width: 768px) {
+        /* 1. 識別手機網頁，將 Grid 改為單欄上下排列，並手動調換渲染順序 (row-reverse) */
+        .main-workspace {
+            display: flex;
+            flex-direction: column-reverse; /* 2. 讓「倒數中」在 HTML 後方渲染者，跑到網頁最上方 */
+            min-height: auto;
+            padding: 0 10px;
         }
 
-        .quick-input {
-            width: 200px;
-            padding: 10px;
-            font-size: 24px;
-            text-align: center;
-            letter-spacing: 2px;
-            border: 2px solid #007bff;
-            border-radius: 6px;
-            margin: 15px 0;
-            font-family: monospace;
+        /* 1. 中央線在手機版自動變成「橫向淺灰線」 */
+        .center-line {
+            width: 100%;
+            height: 2px; /* 變為橫線高度 */
+            margin: 25px 0;
+            align-self: auto;
         }
-        .hint-text {
-            font-size: 14px;
-            color: #888;
-            margin-bottom: 15px;
+
+        /* 縮小欄位內卡片間的上下間距 */
+        .column {
+            padding: 10px 0;
         }
-        .dialog-buttons {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            margin-top: 10px;
+
+        /* 5. 確保 "+","設定" 按鈕在手機版依然完美鎖定在中央下方 */
+        .add-btn {
+            left: calc(50% - 45px) !important;
         }
-        .dialog-buttons button {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
+        #setupBtn {
+            left: calc(50% + 45px) !important;
         }
-        .btn-confirm { background-color: #007bff; color: white; }
-        .btn-delete { background-color: #dc3545; color: white; }
-    </style>
+    }
+</style>
+
+
+
 </head>
 <body>
 
@@ -289,7 +330,36 @@
     const btnSetupConfirm = document.getElementById('btnSetupConfirm');
 
 
-    /* ================= 📡 核心同步演算法：將當前狀態序列化到網址 URL ================= */
+    /* ================= 🛠️ 更新：獨立常駐音訊物件與連播機制 ================= */
+    // 2. 已更新為指定的全新網址路徑
+    const audioUrl = "https://raw.githubusercontent.com/dr-fox/Mushroom-generation-monitoring/refs/heads/main/beep.mp3";
+    
+    // 將 Audio 宣告在全域，獨立於計時器迴圈外，防止因網頁節點重新排版而遭到中斷截斷
+    const globalAudio = new Audio(audioUrl);
+    globalAudio.volume = 0.5;
+
+    let playCount = 0;
+
+    // 綁定單一常駐的結束監聽器
+    globalAudio.addEventListener('ended', () => {
+        if (playCount < 2) {
+            playCount++;
+            globalAudio.currentTime = 0; 
+            globalAudio.play().catch(e => console.log("連播失敗:", e));
+        }
+    });
+
+    function playBuzzerSound() {
+        // 重設播放計數器，強制作動 2 次完整播放
+        playCount = 1; 
+        globalAudio.currentTime = 0; 
+        globalAudio.play().catch(e => {
+            console.log("音訊播放被瀏覽器安全原則阻擋，需要使用者先點擊網頁任意處激活權限。");
+        });
+    }
+
+
+    /* ================= 📡 核心同步演算法 ================= */
     function updateUrlHash() {
         const hashSegments = allCards.map(card => {
             const encodedName = encodeURIComponent(card.cardName);
@@ -310,6 +380,7 @@
             cardName: initialName, 
             targetTime: null,
             countdownInterval: null,
+            hasBuzzed: false, 
             dom: {
                 box: document.createElement('div'),
                 title: document.createElement('div'), 
@@ -353,7 +424,7 @@
     addBtn.addEventListener('click', () => createTimerCard());
 
 
-    /* ================= 📡 網頁開啟初始化：解析網址後綴還原狀態 ================= */
+    /* ================= 📡 網頁開啟初始化 ================= */
     function load看板FromUrlHash() {
         const currentHash = window.location.hash.substring(1); 
         if (!currentHash.trim()) {
@@ -367,8 +438,8 @@
             
             if (token.includes('=')) {
                 const parts = token.split('=');
-                const name = decodeURIComponent(parts[0]);
-                const targetTime = parseInt(parts[1]) || null;
+                const name = decodeURIComponent(parts);
+                const targetTime = parseInt(parts) || null;
                 createTimerCard(name, targetTime);
             } else {
                 const name = decodeURIComponent(token);
@@ -496,7 +567,6 @@
             if (parsed.hr === 0 && parsed.min === 0 && parsed.sec === 0) {
                 resetCardToLeft(currentEditingCard); 
             } else {
-                /* 🛠️ 已加回此功能：將輸入的時間加上「調整增加時間」的變數值 */
                 const finalHr = parsed.hr;
                 const finalMin = parsed.min + defaultMin;
                 const finalSec = parsed.sec + defaultSec;
@@ -510,12 +580,12 @@
     function resetCardToLeft(card) {
         if (card.countdownInterval) clearInterval(card.countdownInterval);
         card.targetTime = null;
+        card.hasBuzzed = false; 
         card.dom.display.textContent = '00:00';
         leftList.appendChild(card.dom.box);
         updateUrlHash(); 
     }
 
-    // 修復：此處宣告有誤，改回正確變數型態
     function deleteCurrentCard() {
         if (currentEditingCard) {
             if (currentEditingCard.countdownInterval) clearInterval(currentEditingCard.countdownInterval);
@@ -543,6 +613,7 @@
 
         const totalMs = ((hours * 3600) + (minutes * 60) + seconds) * 1000;
         card.targetTime = new Date().getTime() + totalMs;
+        card.hasBuzzed = false; 
 
         rightList.appendChild(card.dom.box);
         sortRightList(); 
@@ -564,6 +635,13 @@
         }
 
         const totalSeconds = Math.floor(timeDifference / 1000);
+
+        // 剩餘時間來到 30 秒至 29 秒時觸發播放自訂 MP3 音效
+        if (totalSeconds <= 30 && totalSeconds >= 29 && !card.hasBuzzed) {
+            card.hasBuzzed = true; 
+            playBuzzerSound();
+        }
+
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
@@ -583,6 +661,9 @@
 
     load看板FromUrlHash();
 </script>
+
+
+
 
 
 
