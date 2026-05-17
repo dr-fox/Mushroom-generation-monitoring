@@ -330,13 +330,17 @@
     const btnSetupConfirm = document.getElementById('btnSetupConfirm');
 
 
-    /* ================= 獨立常駐音訊物件與連播機制 ================= */
-    const audioUrl = "https://githubusercontent.com";
+    /* ================= 🛠️ 更新：獨立常駐音訊物件與連播機制 ================= */
+    // 2. 已更新為指定的全新網址路徑
+    const audioUrl = "https://raw.githubusercontent.com/dr-fox/Mushroom-generation-monitoring/refs/heads/main/beep.mp3";
+    
+    // 將 Audio 宣告在全域，獨立於計時器迴圈外，防止因網頁節點重新排版而遭到中斷截斷
     const globalAudio = new Audio(audioUrl);
     globalAudio.volume = 0.5;
 
     let playCount = 0;
 
+    // 綁定單一常駐的結束監聽器
     globalAudio.addEventListener('ended', () => {
         if (playCount < 2) {
             playCount++;
@@ -346,10 +350,11 @@
     });
 
     function playBuzzerSound() {
+        // 重設播放計數器，強制作動 2 次完整播放
         playCount = 1; 
         globalAudio.currentTime = 0; 
         globalAudio.play().catch(e => {
-            console.log("音訊播放被瀏覽器安全原則阻擋，需要使用者先點擊網頁任意處啟動權限。");
+            console.log("音訊播放被瀏覽器安全原則阻擋，需要使用者先點擊網頁任意處激活權限。");
         });
     }
 
